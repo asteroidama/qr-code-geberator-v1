@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generatore QR Avanzato Completo</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Pannello Sinistro - Controlli -->
+        <div class="left-panel">
+            <h1>🎨 Generatore QR Avanzato</h1>
+
+            <!-- Sezione Contenuto -->
+            <div class="section">
+                <div class="section-header active" onclick="toggleSection(this)">
+                    📝 Contenuto QR
+                    <span>▼</span>
+                </div>
+                <div class="section-content active">
+                    <div class="form-group">
+                        <label>Tipo di Contenuto</label>
+                        <select id="contentType" onchange="updateContentFields()">
+                            <option value="text">Testo Libero</option>
+                            <option value="url" selected>URL/Link</option>
+                            <option value="wifi">WiFi</option>
+                            <option value="email">Email</option>
+                            <option value="sms">SMS</option>
+                            <option value="phone">Telefono</option>
+                            <option value="vcard">Biglietto da Visita</option>
+                            <option value="whatsapp">WhatsApp</option>
+                            <option value="location">Posizione GPS</option>
+                            <option value="crypto">Wallet Crypto</option>
+                        </select>
+                    </div>
+
+                    <div id="contentFields">
+                        <div class="form-group">
+                            <label>URL</label>
+                            <input type="url" id="qrText" placeholder="https://esempio.com" onchange="updateQR()" value="https://esempio.com">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Livello di Correzione Errori</label>
+                        <select id="errorLevel" onchange="updateQR()">
+                            <option value="L">Basso (7%)</option>
+                            <option value="M" selected>Medio (15%)</option>
+                            <option value="Q">Alto (25%)</option>
+                            <option value="H">Massimo (30%)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sezione Forme -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    🔷 Forme e Stili
+                    <span>▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label>Forma Base</label>
+                        <div class="shape-selector">
+                            <div class="shape-option active" data-shape="square" onclick="selectShape(this)">
+                                <div style="width: 20px; height: 20px; background: #333;"></div>
+                            </div>
+                            <div class="shape-option" data-shape="circle" onclick="selectShape(this)">
+                                <div style="width: 20px; height: 20px; background: #333; border-radius: 50%;"></div>
+                            </div>
+                            <div class="shape-option" data-shape="diamond" onclick="selectShape(this)">
+                                <div style="width: 20px; height: 20px; background: #333; transform: rotate(45deg);"></div>
+                            </div>
+                            <div class="shape-option" data-shape="hexagon" onclick="selectShape(this)">
+                                <div style="width: 20px; height: 20px; background: #333; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);"></div>
+                            </div>
+                            <div class="shape-option" data-shape="star" onclick="selectShape(this)">
+                                <div style="width: 20px; height: 20px; background: #333; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);"></div>
+                            </div>
+                            <div class="shape-option" data-shape="heart" onclick="selectShape(this)">
+                                <div style="width: 20px; height: 20px; background: #e53e3e; clip-path: polygon(50% 85%, 20% 40%, 20% 25%, 35% 25%, 50% 40%, 65% 25%, 80% 25%, 80% 40%);"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Stile Avanzato</label>
+                        <select id="shapeStyle" onchange="updateQR()">
+                            <option value="normal">Normale</option>
+                            <option value="rounded">Angoli Arrotondati</option>
+                            <option value="mixed">Misto (Grande+Piccolo)</option>
+                            <option value="dots">Pallini</option>
+                            <option value="stripes">Strisce</option>
+                            <option value="organic">Organico</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sezione Colori -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    🎨 Colori e Gradienti
+                    <span>▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="two-column">
+                        <div class="form-group">
+                            <label>Colore Principale</label>
+                            <div class="color-input-group">
+                                <input type="color" id="foregroundColor" value="#000000" onchange="syncColor('foregroundColor')">
+                                <input type="text" id="foregroundHex" value="#000000" onchange="syncColorFromHex('foregroundHex')">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Colore Sfondo</label>
+                            <div class="color-input-group">
+                                <input type="color" id="backgroundColor" value="#ffffff" onchange="syncColor('backgroundColor')">
+                                <input type="text" id="backgroundHex" value="#ffffff" onchange="syncColorFromHex('backgroundHex')">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="transparentBg" onchange="updateQR()">
+                        <label for="transparentBg">Sfondo Trasparente</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="useGradient" onchange="toggleGradient()">
+                        <label for="useGradient">Usa Gradiente</label>
+                    </div>
+
+                    <div id="gradientControls" class="hidden">
+                        <div class="form-group">
+                            <label>Tipo Gradiente</label>
+                            <select id="gradientType" onchange="updateQR()">
+                                <option value="linear">Lineare</option>
+                                <option value="radial">Radiale</option>
+                                <option value="conic">Conico</option>
+                            </select>
+                        </div>
+                        
+                        <div class="two-column">
+                            <div class="form-group">
+                                <label>Colore 1</label>
+                                <input type="color" id="gradientColor1" value="#667eea" onchange="updateQR()">
+                            </div>
+                            <div class="form-group">
+                                <label>Colore 2</label>
+                                <input type="color" id="gradientColor2" value="#764ba2" onchange="updateQR()">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Angolo Gradiente</label>
+                            <div class="range-group">
+                                <input type="range" id="gradientAngle" min="0" max="360" value="45" onchange="updateQR(); updateRangeValue(this)">
+                                <span class="range-value" id="gradientAngleValue">45°</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sezione Logo -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    🖼️ Logo e Immagini
+                    <span>▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label>Upload Logo</label>
+                        <div class="file-drop-zone" onclick="document.getElementById('logoFile').click()" ondrop="handleLogoDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                            <p>📁 Clicca o trascina il file qui</p>
+                            <small>Formati: PNG, JPG, SVG, WebP - Max 10MB</small>
+                        </div>
+                        <input type="file" id="logoFile" class="hidden" accept="image/*" onchange="handleLogoUpload(this)">
+                        <img id="logoPreview" class="logo-preview hidden">
+                    </div>
+
+                    <div class="two-column">
+                        <div class="form-group">
+                            <label>Dimensione Logo (%)</label>
+                            <div class="range-group">
+                                <input type="range" id="logoSize" min="5" max="40" value="15" onchange="updateQR(); updateRangeValue(this)">
+                                <span class="range-value" id="logoSizeValue">15%</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Posizione Logo</label>
+                            <select id="logoPosition" onchange="updateQR()">
+                                <option value="center" selected>Centro</option>
+                                <option value="top-left">Alto Sinistra</option>
+                                <option value="top-center">Alto Centro</option>
+                                <option value="top-right">Alto Destra</option>
+                                <option value="middle-left">Centro Sinistra</option>
+                                <option value="middle-right">Centro Destra</option>
+                                <option value="bottom-left">Basso Sinistra</option>
+                                <option value="bottom-center">Basso Centro</option>
+                                <option value="bottom-right">Basso Destra</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Container Logo</label>
+                        <select id="logoContainer" onchange="updateQR()">
+                            <option value="none">Nessuno</option>
+                            <option value="circle" selected>Cerchio</option>
+                            <option value="square">Quadrato</option>
+                            <option value="rounded">Arrotondato</option>
+                        </select>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="logoShadow" onchange="updateQR()">
+                        <label for="logoShadow">Ombra Logo</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sezione Animazioni -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    ✨ Animazioni
+                    <span>▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="enableAnimation" onchange="toggleAnimation()">
+                        <label for="enableAnimation">Abilita Animazioni</label>
+                    </div>
+
+                    <div id="animationControls" class="hidden">
+                        <div class="form-group">
+                            <label>Tipo Animazione</label>
+                            <select id="animationType" onchange="updateAnimation()">
+                                <option value="pulse">Pulsazione</option>
+                                <option value="rotate">Rotazione</option>
+                                <option value="colorShift">Cambio Colori</option>
+                                <option value="gradientShift">Gradiente Mobile</option>
+                                <option value="breathing">Respirazione</option>
+                                <option value="rainbow">Arcobaleno</option>
+                            </select>
+                        </div>
+
+                        <div class="two-column">
+                            <div class="form-group">
+                                <label>Velocità</label>
+                                <div class="range-group">
+                                    <input type="range" id="animationSpeed" min="0.5" max="3" step="0.5" value="1" onchange="updateAnimation(); updateRangeValue(this)">
+                                    <span class="range-value" id="animationSpeedValue">1x</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Intensità</label>
+                                <div class="range-group">
+                                    <input type="range" id="animationIntensity" min="1" max="10" value="5" onchange="updateAnimation(); updateRangeValue(this)">
+                                    <span class="range-value" id="animationIntensityValue">5</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="animationLoop" checked onchange="updateAnimation()">
+                            <label for="animationLoop">Loop Infinito</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sezione Effetti -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    🎭 Effetti e Decorazioni
+                    <span>▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label>Margine QR</label>
+                        <div class="range-group">
+                            <input type="range" id="qrMargin" min="0" max="50" value="0" onchange="updateQR(); updateRangeValue(this)">
+                            <span class="range-value" id="qrMarginValue">0px</span>
+                        </div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="qrShadow" onchange="updateQR()">
+                        <label for="qrShadow">Ombra QR</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="qrBorder" onchange="toggleBorder()">
+                        <label for="qrBorder">Bordo QR</label>
+                    </div>
+
+                    <div id="borderControls" class="hidden">
+                        <div class="form-group">
+                            <label>Spessore Bordo</label>
+                            <div class="range-group">
+                                <input type="range" id="borderWidth" min="1" max="10" value="2" onchange="updateQR(); updateRangeValue(this)">
+                                <span class="range-value" id="borderWidthValue">2px</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Colore Bordo</label>
+                            <input type="color" id="borderColor" value="#333333" onchange="updateQR()">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Rotazione QR</label>
+                        <div class="range-group">
+                            <input type="range" id="qrRotation" min="0" max="360" value="0" onchange="updateQR(); updateRangeValue(this)">
+                            <span class="range-value" id="qrRotationValue">0°</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sezione Accessibilità -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    ♿ Accessibilità e CSS
+                    <span>▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="autoContrast" onchange="checkContrast()">
+                        <label for="autoContrast">Contrasto Automatico</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Test Contrasto WCAG</label>
+                        <div id="contrastInfo" class="contrast-info">
+                            Ratio: <span id="contrastRatio">21:1</span> - 
+                            <span id="contrastStatus" class="contrast-status-aaa">✓ WCAG AAA</span>
+                        </div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cssExport" onchange="toggleCssMode()">
+                        <label for="cssExport">Export CSS-Friendly</label>
+                    </div>
+
+                    <div id="cssControls" class="hidden">
+                        <div class="form-group">
+                            <label>Variabili CSS Generate</label>
+                            <textarea id="cssVariables" rows="4" readonly class="css-preview">
+--qr-primary: currentColor;
+--qr-secondary: transparent;
+--qr-size: 300px;
+--qr-border-radius: 0;
+                            </textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sezione Template -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    💾 Template e Presets
+                    <span>▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="button-group">
+                        <button class="btn" onclick="randomizeSettings()">🎲 Combinazione Casuale</button>
+                        <button class="btn secondary" onclick="saveTemplate()">💾 Salva Template</button>
+                        <button class="btn warning" onclick="resetToDefault()">🔄 Reset Default</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nome Template (per salvataggio)</label>
+                        <input type="text" id="templateName" placeholder="Es: Logo Aziendale, Stile Vintage...">
+                    </div>
+
+                    <div id="savedTemplates" class="template-grid">
+                        <!-- Template salvati appariranno qui -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pannello Destro - Anteprima e Export -->
+        <div class="right-panel">
+            <!-- Sezione Anteprima -->
+            <div class="preview-section">
+                <h3>🔍 Anteprima Live</h3>
+                <div class="canvas-container">
+                    <canvas id="qrCanvas" class="preview-canvas" width="300" height="300"></canvas>
+                    <div id="animationOverlay" class="animation-overlay hidden"></div>
+                </div>
+                <div id="qrInfo" class="qr-info">
+                    <div>Dimensione: <span id="currentSize">300x300px</span></div>
+                    <div>Livello: <span id="currentLevel">M (15%)</span></div>
+                    <div>Moduli: <span id="moduleCount">25x25</span></div>
+                </div>
+                <div id="loadingIndicator" class="loading-spinner hidden"></div>
+            </div>
+
+            <!-- Sezione Export -->
+            <div class="export-section">
+                <h3>💾 Esporta QR Code</h3>
+                
+                <div class="form-group">
+                    <label>Dimensione Export</label>
+                    <select id="exportSize" onchange="updateExportInfo()">
+                        <option value="300">300px (Web)</option>
+                        <option value="500">500px (Social)</option>
+                        <option value="1000" selected>1000px (Standard)</option>
+                        <option value="2000">2000px (Stampa)</option>
+                        <option value="custom">Personalizzata</option>
+                    </select>
+                </div>
+
+                <div id="customSizeControls" class="hidden">
+                    <div class="two-column">
+                        <div class="form-group">
+                            <label>Larghezza</label>
+                            <input type="number" id="customWidth" value="1000" min="100" max="5000" onchange="updateExportInfo()">
+                        </div>
+                        <div class="form-group">
+                            <label>Altezza</label>
+                            <input type="number" id="customHeight" value="1000" min="100" max="5000" onchange="updateExportInfo()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Qualità/DPI</label>
+                    <select id="exportQuality">
+                        <option value="72">72 DPI (Web)</option>
+                        <option value="150">150 DPI (Standard)</option>
+                        <option value="300" selected>300 DPI (Stampa)</option>
+                    </select>
+                </div>
+
+                <div class="export-options">
+                    <button class="btn success" onclick="exportQR('svg')">
+                        📄 SVG Vettoriale
+                    </button>
+                    <button class="btn" onclick="exportQR('png')">
+                        🖼️ PNG Raster
+                    </button>
+                    <button class="btn secondary" onclick="exportQR('webp')">
+                        🚀 WebP Ottimizzato
+                    </button>
+                    <button class="btn warning" onclick="exportQR('pdf')" id="pdfExportBtn">
+                        📋 PDF Stampa
+                    </button>
+                </div>
+
+                <div id="animationExport" class="hidden">
+                    <div class="form-group">
+                        <label>Export Animazione</label>
+                        <div class="export-options">
+                            <button class="btn warning" onclick="exportFrames()" style="width: 100%;">
+                                🎞️ Frame Sequenza
+                            </button>
+                            <button class="btn success" onclick="exportGIF()" style="width: 100%;" id="gifExportBtn">
+                                🎬 GIF Animata
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="two-column">
+                        <div class="form-group">
+                            <label>Durata (sec)</label>
+                            <input type="number" id="animationDuration" value="3" min="1" max="10" step="0.5">
+                        </div>
+                        <div class="form-group">
+                            <label>FPS</label>
+                            <select id="animationFPS">
+                                <option value="12">12 FPS</option>
+                                <option value="15">15 FPS</option>
+                                <option value="24" selected>24 FPS</option>
+                                <option value="30">30 FPS</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="batchMode" onchange="toggleBatch()">
+                    <label for="batchMode">Modalità Batch</label>
+                </div>
+
+                <div id="batchControls" class="hidden">
+                    <div class="form-group">
+                        <label>Lista URL/Testi (uno per riga)</label>
+                        <textarea id="batchContent" rows="4" placeholder="https://sito1.com
+https://sito2.com
+Testo per QR 3
+mario@email.com
+WIFI:T:WPA;S:MiaRete;P:password123;;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Prefisso Nome File</label>
+                        <input type="text" id="batchPrefix" value="qr-batch" placeholder="qr-batch">
+                    </div>
+                    <button class="btn success" onclick="exportBatch()" style="width: 100%;">
+                        📦 Esporta Tutti (ZIP)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification System -->
+    <div id="notification" class="notification"></div>
+
+    <!-- Progress Modal -->
+    <div id="progressModal" class="progress-modal hidden">
+        <div class="progress-content">
+            <h3 id="progressTitle">Elaborazione in corso...</h3>
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill"></div>
+            </div>
+            <p id="progressText">0%</p>
+            <button class="btn warning" onclick="cancelOperation()" id="cancelBtn">Annulla</button>
+        </div>
+    </div>
+
+    <!-- Include JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
